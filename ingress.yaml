@@ -12,7 +12,8 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - http:
+    - host: bank.o.serghini.me
+      http:
         paths:
           - path: /
             pathType: Prefix
