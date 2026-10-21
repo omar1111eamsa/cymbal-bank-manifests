@@ -104,12 +104,12 @@ spec:
               name: postgresdb
               subPath: postgres
       serviceAccountName: bank-of-anthos
-      volumeClaimTemplates:
-        - metadata:
-            name: postgresdb
-          spec:
-            accessModes: ["ReadWriteOnce"]
-            storageClassName: gp3
-            resources:
-              requests:
-                storage: 5Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: postgresdb
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: gp3
+        resources:
+          requests:
+            storage: 5Gi
