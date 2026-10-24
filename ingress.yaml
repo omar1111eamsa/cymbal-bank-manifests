@@ -7,7 +7,6 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/healthcheck-path: /ready
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:612062119472:certificate/cf12cc3e-f492-4c2c-905f-bcc2280b3083
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:eu-west-1:612062119472:regional/webacl/cymbal-bank-web-acl/788f6b80-b20c-4f24-b405-e4faf997f31b
     alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
