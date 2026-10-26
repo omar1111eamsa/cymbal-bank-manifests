@@ -87,6 +87,8 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
+            - secretRef:
+                name: ledger-db-credentials
           image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.11@sha256:b66efed587c295788369459898e7ae5a5e15150c3fcd782170c19a8c4b31059d
           name: ledgerwriter
           readinessProbe:
