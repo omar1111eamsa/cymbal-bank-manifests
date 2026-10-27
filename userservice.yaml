@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Own identity: becomes its mTLS identity in the mesh (spiffe://.../sa/userservice)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: userservice
+# The app never calls the Kubernetes API: no token mounted
+automountServiceAccountToken: false
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -122,7 +130,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+      serviceAccountName: userservice
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}

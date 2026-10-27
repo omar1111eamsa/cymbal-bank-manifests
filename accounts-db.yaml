@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Own identity: becomes its mTLS identity in the mesh (spiffe://.../sa/accounts-db)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: accounts-db
+# The app never calls the Kubernetes API: no token mounted
+automountServiceAccountToken: false
+---
 apiVersion: v1
 data:
   POSTGRES_DB: accounts-db
@@ -102,7 +110,7 @@ spec:
             - mountPath: /var/lib/postgresql/data
               name: postgresdb
               subPath: postgres
-      serviceAccountName: bank-of-anthos
+      serviceAccountName: accounts-db
   volumeClaimTemplates:
     - metadata:
         name: postgresdb
