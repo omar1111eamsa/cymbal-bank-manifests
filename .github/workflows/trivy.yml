@@ -10,31 +10,50 @@ on:
 
 permissions:
   contents: read
-  security-events: write   # upload results to the Security tab
 
 jobs:
-  trivy:
-    name: "Trivy (image CVEs)"
+  # Read the image list from the manifests: a new image is scanned automatically
+  images:
+    name: "List images"
     runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.list.outputs.images }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: List images from the manifests
+      - id: list
         run: |
-          grep -ho 'image: .*' *.yaml | awk '{print $2}' | sort -u > images.txt
+          echo "images=$(grep -ho 'image: .*' *.yaml | awk '{print $2}' | sort -u | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
 
-      - name: Scan images
+  # One job per image: GitHub accepts one SARIF run per category
+  trivy:
+    name: "Trivy (${{ matrix.image }})"
+    needs: images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # upload results to the Security tab
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.images.outputs.list) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan
+        id: scan
+        env:
+          IMAGE: ${{ matrix.image }}   # passed as env, never pasted into the script
         run: |
-          i=0
-          while read -r img; do
-            i=$((i+1))
-            docker run --rm -v "$PWD:/out" aquasec/trivy:0.58.1 image \
-              --severity HIGH,CRITICAL --ignore-unfixed \
-              --format sarif --output /out/trivy-$i.sarif "$img"
-          done < images.txt
+          docker run --rm -v "$PWD:/out" aquasec/trivy:0.58.1 image \
+            --severity HIGH,CRITICAL --ignore-unfixed \
+            --format sarif --output /out/trivy.sarif "$IMAGE"
+          # Short name for the category: .../frontend:v0.6.11@sha256:... -> frontend
+          name="${IMAGE##*/}"
+          echo "name=${name%%[:@]*}" >> "$GITHUB_OUTPUT"
 
       - name: Upload to the Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: .
-          category: trivy-images
+          sarif_file: trivy.sarif
+          category: trivy-${{ steps.scan.outputs.name }}
