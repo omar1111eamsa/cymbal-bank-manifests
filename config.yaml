@@ -17,17 +17,12 @@ kind: ConfigMap
 metadata:
   name: environment-config
 data:
-  # Change these two values to "false"
-  ENABLE_TRACING: "false"
-  ENABLE_METRICS: "false"
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: environment-config
-data:
   LOCAL_ROUTING_NUM: "883745000"
   PUB_KEY_PATH: "/tmp/.ssh/publickey"
+  # Tracing and metrics export to Google Cloud: off on AWS
+  ENABLE_TRACING: "false"
+  ENABLE_METRICS: "false"
+
 ---
 apiVersion: v1
 kind: ConfigMap
