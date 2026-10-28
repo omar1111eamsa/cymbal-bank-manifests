@@ -1,0 +1,39 @@
+name: "Image scan"
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"   # every Monday 06:00 UTC: catch newly published CVEs
+
+permissions:
+  contents: read
+  security-events: write   # upload results to the Security tab
+
+jobs:
+  trivy:
+    name: "Trivy (image CVEs)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: List images from the manifests
+        run: grep -ho 'image: .*' *.yaml | awk '{print $2}' | sort -u > images.txt
+
+      - name: Scan images
+        run: |
+          i=0
+          while read -r img; do
+            i=$((i+1))
+            docker run --rm -v "$PWD:/out" aquasec/trivy:0.58.1 image \
+              --severity HIGH,CRITICAL --ignore-unfixed \
+              --format sarif --output /out/trivy-$i.sarif "$img"
+          done < images.txt
+
+      - name: Upload to the Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .
+          category: trivy-images
