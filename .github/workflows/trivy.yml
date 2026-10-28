@@ -20,7 +20,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: List images from the manifests
-        run: grep -ho 'image: .*' *.yaml | awk '{print $2}' | sort -u > images.txt
+        run: |
+          grep -ho 'image: .*' *.yaml | awk '{print $2}' | sort -u > images.txt
 
       - name: Scan images
         run: |
